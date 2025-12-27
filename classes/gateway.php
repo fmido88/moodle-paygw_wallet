@@ -16,6 +16,8 @@
 
 namespace paygw_wallet;
 
+use enrol_wallet\local\wallet\balance;
+
 /**
  * The gateway class for Pay witb wallet payment gateway
  *
@@ -43,6 +45,17 @@ class gateway extends \core_payment\gateway {
         if (empty($currency)) {
             return [];
         }
+
+        $hascurrency = is_siteadmin();
+        if (!$hascurrency) {
+            $balance = new balance();
+            $hascurrency = $balance->get_valid_balance() > 0.01;
+        }
+
+        if (!$hascurrency) {
+            return [];
+        }
+
         $currencies = get_string_manager()->get_list_of_currencies('en');
         if (array_key_exists($currency, $currencies)) {
             return [$currency];
